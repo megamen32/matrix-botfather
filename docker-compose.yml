@@ -1,0 +1,15 @@
+services:
+  botfather:
+    build: .
+    container_name: matrix-botfather
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - bot-data:/app/data
+      # BotFather needs docker access for mas-cli commands
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persist bot database
+      - ./data:/app/data
+
+volumes:
+  bot-data:

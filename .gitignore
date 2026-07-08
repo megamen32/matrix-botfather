@@ -1,6 +1,5 @@
 node_modules/
 .env
-*.json
-!package.json
-!package-lock.json
+bot-storage.json
+*.log
 data/bots.json
