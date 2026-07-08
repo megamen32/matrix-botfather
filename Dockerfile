@@ -1,6 +1,7 @@
-FROM node:20-alpine
+FROM node:22-bookworm-slim
 
 WORKDIR /app
+
 
 COPY package.json package-lock.json ./
 RUN npm ci --production && npm install matrix-bot-sdk dotenv

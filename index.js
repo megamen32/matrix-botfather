@@ -5,7 +5,7 @@
 require('dotenv').config();
 const { MatrixClient, SimpleFsStorageProvider } = require('matrix-bot-sdk');
 const { handleCommand } = require('./handlers/commands');
-const { adminLogin } = require('./handlers/adminApi');
+const { adminLogin, httpRequest } = require('./handlers/adminApi');
 const path = require('path');
 const fs = require('fs');
 
@@ -103,7 +103,7 @@ async function start() {
 
   // Whoami
   try {
-    const whoami = await client.getWhoami();
+    const whoami = await httpRequest(HOMESERVER_URL, token, 'GET', '/_matrix/client/v3/account/whoami');
     console.log(`🤖 BotFather: ${whoami.user_id}`);
   } catch (err) {
     console.error('❌ Ошибка подключения:', err.message);
