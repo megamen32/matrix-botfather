@@ -1,0 +1,14 @@
+{
+  "name": "matrix-botfather",
+  "version": "1.0.0",
+  "description": "Matrix BotFather - управление бот-аккаунтами на Synapse",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node -e \"require('./handlers/adminApi'); require('./handlers/botStore'); require('./handlers/commands'); console.log('OK')\""
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "matrix-bot-sdk": "^0.8.0"
+  }
+}
