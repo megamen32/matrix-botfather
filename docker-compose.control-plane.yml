@@ -15,7 +15,10 @@ services:
       BOTFATHER_REGISTRY_FILE: /botfather-data/bots.json
       BOTFATHER_VAULT_FILE: /botfather-data/secrets.enc
     ports:
-      - "127.0.0.1:8092:8092"
+      # Keep the default loopback-only.  The production ingress host sets this
+      # to server 88's LAN address so central nginx can reach it without a
+      # public listener.
+      - "${CONTROL_PLANE_LISTEN_ADDRESS:-127.0.0.1}:8092:8092"
     volumes:
       - ./data:/botfather-data:ro
       - ./control-history:/app/control-history:rw
