@@ -4,7 +4,7 @@ WORKDIR /app
 
 
 COPY package.json package-lock.json ./
-RUN npm ci --production && npm install matrix-bot-sdk dotenv
+RUN npm ci --omit=dev
 
 COPY . .
 
