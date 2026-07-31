@@ -1,0 +1,10 @@
+[Unit]
+Description=Private LAN socket for the Klub control plane
+PartOf=klub-control-plane-lan.service
+
+[Socket]
+ListenStream=192.168.2.75:8092
+NoDelay=true
+
+[Install]
+WantedBy=sockets.target

@@ -1,0 +1,34 @@
+[Unit]
+Description=Klub BotFather control plane
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=roomhacker
+Group=roomhacker
+WorkingDirectory=/home/roomhacker/matrix-synapse/matrix-botfather
+EnvironmentFile=/home/roomhacker/matrix-synapse/matrix-botfather/.env
+Environment=CONTROL_PLANE_BIND=127.0.0.1
+Environment=CONTROL_PLANE_PORT=8092
+Environment=KLUB_PERSONA_DIR=/home/roomhacker/matrix-synapse/klub-diskussiy-v2/personas
+Environment=KLUB_CONFIG_FILE=/home/roomhacker/matrix-synapse/klub-diskussiy-v2/config/bot.toml
+Environment=KLUB_RUNTIME_ENV_FILE=/home/roomhacker/matrix-synapse/klub-diskussiy-v2/.env.local
+Environment=KLUB_HISTORY_DIR=/home/roomhacker/matrix-synapse/matrix-botfather/control-history
+Environment=BOTFATHER_REGISTRY_FILE=/home/roomhacker/matrix-synapse/matrix-botfather/data/bots.json
+Environment=BOTFATHER_VAULT_FILE=/home/roomhacker/matrix-synapse/matrix-botfather/data/secrets.enc
+ExecStart=/usr/bin/node admin/index.js
+Restart=on-failure
+RestartSec=5s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/roomhacker/matrix-synapse/matrix-botfather/control-history
+ReadWritePaths=/home/roomhacker/matrix-synapse/klub-diskussiy-v2/personas
+ReadWritePaths=/home/roomhacker/matrix-synapse/klub-diskussiy-v2/config
+ReadWritePaths=/home/roomhacker/matrix-synapse/klub-diskussiy-v2/.env.local
+
+[Install]
+WantedBy=multi-user.target
