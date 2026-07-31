@@ -1,19 +1,4 @@
-const crypto = require('node:crypto');
 const http = require('node:http');
-
-function equal(left, right) {
-  const a = Buffer.from(left || '');
-  const b = Buffer.from(right || '');
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
-function authorized(request, username, password) {
-  const header = request.headers.authorization || '';
-  if (!header.startsWith('Basic ')) return false;
-  const decoded = Buffer.from(header.slice(6), 'base64').toString('utf8');
-  const separator = decoded.indexOf(':');
-  return separator !== -1 && equal(decoded.slice(0, separator), username) && equal(decoded.slice(separator + 1), password);
-}
 
 function trustedOrigin(request) {
   const origin = request.headers.origin;
@@ -51,15 +36,11 @@ async function createPersona(){await api('/api/personas',{method:'POST',headers:
 load().catch(e=>document.body.insertAdjacentHTML('beforeend','<pre>'+e.message+'</pre>'));</script>`;
 }
 
-function createAdminServer({ personaStore, llmStore = null, clubActivation = null, botRegistry = () => [], username, password }) {
-  if (!personaStore || !username || !password) throw new Error('personaStore, username, and password are required');
+function createAdminServer({ personaStore, llmStore = null, clubActivation = null, botRegistry = () => [] }) {
+  if (!personaStore) throw new Error('personaStore is required');
   return http.createServer(async (request, response) => {
     try {
       if (request.url === '/health') return reply(response, 200, { service: 'klub-control-plane', status: 'ok' });
-      if (!authorized(request, username, password)) {
-        response.writeHead(401, { 'www-authenticate': 'Basic realm="Klub control plane"', 'cache-control': 'no-store' });
-        return response.end();
-      }
       if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) && !trustedOrigin(request)) return reply(response, 403, { error: 'cross-origin write denied' });
       if (request.method === 'GET' && request.url === '/') {
         response.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'content-security-policy': "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'" });

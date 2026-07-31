@@ -1,0 +1,23 @@
+[Unit]
+Description=LAN proxy for the Klub control plane (rejects only the gateway source)
+Requires=klub-control-plane.service
+After=network-online.target klub-control-plane.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/home/roomhacker/matrix-synapse/matrix-botfather
+Environment=CONTROL_PLANE_LAN_BIND=192.168.2.75
+Environment=CONTROL_PLANE_DENIED_SOURCE_IP=192.168.2.1
+Environment=CONTROL_PLANE_PORT=8092
+ExecStart=/usr/bin/node deploy/lanProxy.js
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target

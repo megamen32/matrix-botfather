@@ -77,26 +77,23 @@ test('persona updates are validated and retain a rollback revision', () => {
   assert.throws(() => store.update('../escape', { prompt: 'no' }), /invalid persona name/);
 });
 
-test('admin API requires owner password and writes a validated persona revision', async (t) => {
+test('admin API relies on the trusted reverse proxy and writes a validated persona revision', async (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'matrix-admin-test-'));
   const personas = path.join(root, 'personas');
   fs.mkdirSync(personas);
   fs.writeFileSync(path.join(personas, 'anna_k.toml'), 'username = "anna_k"\ndisplayname = "Anna"\n[character]\nprompt = "Old"\n[style]\nsentences_per_part = 2\ntyping_speed_cps = 8\n');
   const activation = { activate: ({ username, displayname, prompt }) => ({ username, displayname, character: { prompt } }) };
-  const server = createAdminServer({ personaStore: new PersonaStore(personas, path.join(root, 'history')), clubActivation: activation, username: 'owner', password: 'secret' });
+  const server = createAdminServer({ personaStore: new PersonaStore(personas, path.join(root, 'history')), clubActivation: activation });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => server.close());
   const base = `http://127.0.0.1:${server.address().port}`;
-  const auth = { Authorization: `Basic ${Buffer.from('owner:secret').toString('base64')}` };
-
-  assert.equal((await fetch(`${base}/api/personas`)).status, 401);
-  const listed = await fetch(`${base}/api/personas`, { headers: auth });
+  const listed = await fetch(`${base}/api/personas`);
   assert.equal(listed.status, 200);
   assert.equal((await listed.json())[0].name, 'anna_k');
-  const update = await fetch(`${base}/api/personas/anna_k`, { method: 'PUT', headers: { ...auth, 'content-type': 'application/json' }, body: JSON.stringify({ prompt: 'Updated' }) });
+  const update = await fetch(`${base}/api/personas/anna_k`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: 'Updated' }) });
   assert.equal(update.status, 200);
   assert.equal((await update.json()).character.prompt, 'Updated');
-  const created = await fetch(`${base}/api/personas`, { method: 'POST', headers: { ...auth, 'content-type': 'application/json' }, body: JSON.stringify({ username: 'new_persona', displayname: 'New Persona', prompt: 'New prompt' }) });
+  const created = await fetch(`${base}/api/personas`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'new_persona', displayname: 'New Persona', prompt: 'New prompt' }) });
   assert.equal(created.status, 201);
   assert.equal((await created.json()).username, 'new_persona');
 });
@@ -108,12 +105,11 @@ test('admin API lists BotFather-managed accounts without credentials', async (t)
   const server = createAdminServer({
     personaStore: new PersonaStore(personas, path.join(root, 'history')),
     botRegistry: () => [{ username: 'new_persona', userId: '@new_persona:chat.bezrabotnyi.com', displayName: 'New Persona', token: 'must-not-leak' }],
-    username: 'owner', password: 'secret',
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => server.close());
   const url = `http://127.0.0.1:${server.address().port}/api/bots`;
-  const response = await fetch(url, { headers: { authorization: `Basic ${Buffer.from('owner:secret').toString('base64')}` } });
+  const response = await fetch(url);
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), [{ username: 'new_persona', userId: '@new_persona:chat.bezrabotnyi.com', displayName: 'New Persona' }]);
 });
@@ -123,15 +119,14 @@ test('admin page escapes stored persona fields and rejects cross-origin writes',
   const personas = path.join(root, 'personas');
   fs.mkdirSync(personas);
   fs.writeFileSync(path.join(personas, 'anna_k.toml'), 'username = "anna_k"\ndisplayname = "<img src=x onerror=alert(1)>"\n[character]\nprompt = "<script>alert(1)</script>"\n[style]\nsentences_per_part = 2\ntyping_speed_cps = 8\n');
-  const server = createAdminServer({ personaStore: new PersonaStore(personas, path.join(root, 'history')), username: 'owner', password: 'secret' });
+  const server = createAdminServer({ personaStore: new PersonaStore(personas, path.join(root, 'history')) });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => server.close());
   const base = `http://127.0.0.1:${server.address().port}`;
-  const auth = { Authorization: `Basic ${Buffer.from('owner:secret').toString('base64')}` };
-  const html = await (await fetch(`${base}/`, { headers: auth })).text();
+  const html = await (await fetch(`${base}/`)).text();
   assert.equal(html.includes('<img src=x onerror=alert(1)>'), false);
   assert.equal(html.includes("esc(p.displayname)"), true);
-  const crossOrigin = await fetch(`${base}/api/personas/anna_k`, { method: 'PUT', headers: { ...auth, origin: 'https://attacker.example', 'content-type': 'application/json' }, body: JSON.stringify({ displayname: 'pwned' }) });
+  const crossOrigin = await fetch(`${base}/api/personas/anna_k`, { method: 'PUT', headers: { origin: 'https://attacker.example', 'content-type': 'application/json' }, body: JSON.stringify({ displayname: 'pwned' }) });
   assert.equal(crossOrigin.status, 403);
 });
 
