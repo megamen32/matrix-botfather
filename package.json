@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node -e \"require('./handlers/adminApi'); require('./handlers/botStore'); require('./handlers/commands'); console.log('OK')\""
+    "admin": "node admin/index.js",
+    "test": "node --test test/*.test.js && node -e \"require('./handlers/adminApi'); require('./handlers/botStore'); require('./handlers/commands'); console.log('OK')\""
   },
   "dependencies": {
-    "dotenv": "^17.4.2",
-    "matrix-bot-sdk": "^0.8.0"
+    "@iarna/toml": "2.2.5",
+    "dotenv": "^17.4.2"
   }
 }

@@ -29,7 +29,6 @@ function httpRequest(baseUrl, token, method, path, body = null) {
       path: url.pathname + url.search,
       method,
       headers: { 'Content-Type': 'application/json' },
-      rejectUnauthorized: false,
     };
     if (token) options.headers['Authorization'] = `Bearer ${token}`;
 

@@ -1,0 +1,32 @@
+services:
+  control-plane:
+    build: .
+    container_name: klub-control-plane
+    command: node admin/index.js
+    env_file:
+      - .env
+    environment:
+      CONTROL_PLANE_BIND: 0.0.0.0
+      CONTROL_PLANE_PORT: 8092
+      KLUB_PERSONA_DIR: /club/personas
+      KLUB_CONFIG_FILE: /club/config/bot.toml
+      KLUB_RUNTIME_ENV_FILE: /club/.env.local
+      KLUB_HISTORY_DIR: /app/control-history
+      BOTFATHER_REGISTRY_FILE: /botfather-data/bots.json
+      BOTFATHER_VAULT_FILE: /botfather-data/secrets.enc
+    ports:
+      - "127.0.0.1:8092:8092"
+    volumes:
+      - ./data:/botfather-data:ro
+      - ./control-history:/app/control-history:rw
+      - ../klub-diskussiy-v2/personas:/club/personas:rw
+      - ../klub-diskussiy-v2/config:/club/config:rw
+      - ../klub-diskussiy-v2/.env.local:/club/.env.local:rw
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped

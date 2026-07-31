@@ -7,7 +7,8 @@ const {
   listUsers, inviteUser, joinRoom, listRooms, getUserInfo,
   generatePassword, AUTH_MODE,
 } = require('./adminApi');
-const { getBot, getAllBots, saveBot, deleteBot: storeDeleteBot, updateBotToken, getBotCount } = require('./botStore');
+const { getBot, getAllBots, saveBot, deleteBot: storeDeleteBot, updateBotToken, getBotCredentials, getBotCount } = require('./botStore');
+const { isOwner } = require('../lib/access');
 
 function htmlEscape(t) {
   return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -59,11 +60,8 @@ async function cmdNewbot(args, senderId) {
 
     let reply = `✅ <b>Бот создан!</b>\n\n`;
     reply += `ID: <code>${result.userId}</code>\n`;
-    reply += `Пароль: <code>${result.password}</code>\n`;
-    reply += `Токен: <code>${result.token}</code>\n`;
-    reply += `\n⚠️ <b>Сохраните токен</b> — compatibility token показывается один раз!\n`;
-    reply += `Режим: ${AUTH_MODE === 'mas' ? 'MAS' : 'Synapse'}\n`;
-    reply += `\nПовторный токен: <code>!token ${botName}</code>`;
+    reply += `Credentials сохранены в зашифрованном vault и не выводятся в историю комнаты.\n`;
+    reply += `Режим: ${AUTH_MODE === 'mas' ? 'MAS' : 'Synapse'}`;
     return fmt(reply);
   } catch (err) {
     return `❌ Ошибка создания: ${err.message}`;
@@ -80,14 +78,12 @@ async function cmdToken(args) {
   if (!bot) return `❌ Бот ${botName} не найден. Список: <code>!listbots</code>`;
 
   try {
-    const newToken = await refreshBotToken(fullUserId, bot.password);
+    const credentials = getBotCredentials(fullUserId) || {};
+    if (!credentials.password) throw new Error('credentials for bot are unavailable');
+    const newToken = await refreshBotToken(fullUserId, credentials.password);
     updateBotToken(fullUserId, newToken);
 
-    let reply = `🔑 <b>Токен для ${fullUserId}</b>\n\n`;
-    reply += `<code>${newToken}</code>\n`;
-    if (bot.password) reply += `\nПароль: <code>${bot.password}</code>`;
-    reply += `\nРежим: ${AUTH_MODE === 'mas' ? 'MAS compatibility token' : 'password login'}`;
-    return fmt(reply);
+    return `✅ Credentials для ${fullUserId} обновлены в vault. Токены не выводятся в Matrix-комнаты.`;
   } catch (err) {
     return `❌ Ошибка: ${err.message}\nПопробуйте <code>!resetpw ${botName}</code>`;
   }
@@ -136,10 +132,8 @@ async function cmdResetpw(args) {
 
   try {
     const newPassword = await resetBotPassword(botName);
-    bot.password = newPassword;
-    bot.token = null; // invalidate
-    saveBot(fullUserId, bot);
-    return `🔑 Пароль для <b>${fullUserId}</b> сброшен:\n<code>${newPassword}</code>\nСтарый токен больше не работает. Получите новый: <code>!token ${botName}</code>`;
+    saveBot(fullUserId, { ...bot, password: newPassword, token: null });
+    return `✅ Password для ${fullUserId} сброшен; новые credentials сохранены в vault.`;
   } catch (err) {
     return `❌ Ошибка: ${err.message}`;
   }
@@ -171,9 +165,11 @@ async function cmdJoin(args) {
   if (!bot) return `❌ Бот ${botName} не найден.`;
 
   try {
-    let token = bot.token;
+    const credentials = getBotCredentials(fullUserId) || {};
+    let token = credentials.token;
     if (!token) {
-      token = await refreshBotToken(fullUserId, bot.password);
+      if (!credentials.password) throw new Error('credentials for bot are unavailable');
+      token = await refreshBotToken(fullUserId, credentials.password);
       updateBotToken(fullUserId, token);
     }
     await joinRoom(token, roomId);
@@ -229,8 +225,7 @@ function cmdInfo(args) {
   reply += `Создан: ${bot.createdAt || '?'}\n`;
   reply += `Создатель: <code>${bot.createdBy || '?'}</code>\n`;
   reply += `Заметка: ${bot.notes ? htmlEscape(bot.notes) : '—'}\n`;
-  if (bot.password) reply += `Пароль: <code>${bot.password}</code>\n`;
-  if (bot.token) reply += `Токен: <code>${bot.token.substring(0, 20)}...</code>\n`;
+  reply += 'Credentials: <b>хранятся в vault</b>\n';
   return fmt(reply);
 }
 
@@ -266,6 +261,7 @@ function parseCommand(body) {
 async function handleCommand(body, senderId) {
   const parsed = parseCommand(body);
   if (!parsed) return null;
+  if (!isOwner(senderId, process.env.MATRIX_ADMIN_ALLOWED_USERS)) return '⛔ Эта команда доступна только владельцу.';
   const { subcommand, args } = parsed;
 
   switch (subcommand) {
