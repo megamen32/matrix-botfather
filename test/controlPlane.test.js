@@ -114,6 +114,29 @@ test('admin API lists BotFather-managed accounts without credentials', async (t)
   assert.deepEqual(await response.json(), [{ username: 'new_persona', userId: '@new_persona:chat.bezrabotnyi.com', displayName: 'New Persona' }]);
 });
 
+test('production admin treats a missing BotFather registry as an empty list', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'matrix-admin-missing-registry-test-'));
+  const previous = process.env.BOTFATHER_REGISTRY_FILE;
+  process.env.BOTFATHER_REGISTRY_FILE = path.join(root, 'missing-bots.json');
+  const registryModule = require.resolve('../admin/registry');
+  const storeModule = require.resolve('../handlers/botStore');
+  delete require.cache[registryModule];
+  delete require.cache[storeModule];
+
+  try {
+    const { loadBotRegistry } = require('../admin/registry');
+    assert.deepEqual(loadBotRegistry(), {});
+  } finally {
+    if (previous === undefined) {
+      delete process.env.BOTFATHER_REGISTRY_FILE;
+    } else {
+      process.env.BOTFATHER_REGISTRY_FILE = previous;
+    }
+    delete require.cache[registryModule];
+    delete require.cache[storeModule];
+  }
+});
+
 test('admin page escapes stored persona fields and rejects cross-origin writes', async (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'matrix-admin-security-test-'));
   const personas = path.join(root, 'personas');
@@ -126,6 +149,8 @@ test('admin page escapes stored persona fields and rejects cross-origin writes',
   const html = await (await fetch(`${base}/`)).text();
   assert.equal(html.includes('<img src=x onerror=alert(1)>'), false);
   assert.equal(html.includes("esc(p.displayname)"), true);
+  assert.equal(html.includes("savePersona(\\''+p.name+'\\')"), true);
+  assert.equal(html.includes("savePersona(''+p.name+'')"), false);
   const crossOrigin = await fetch(`${base}/api/personas/anna_k`, { method: 'PUT', headers: { origin: 'https://attacker.example', 'content-type': 'application/json' }, body: JSON.stringify({ displayname: 'pwned' }) });
   assert.equal(crossOrigin.status, 403);
 });
