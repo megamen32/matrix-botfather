@@ -53,6 +53,25 @@ class OrchestratorClient {
     return this.request('/api/v1/personas?source=matrix&limit=500');
   }
 
+  getMatrixPause() {
+    return this.request('/api/v1/personas/control/matrix');
+  }
+
+  setMatrixPause(paused) {
+    return this.request('/api/v1/personas/control/matrix', {
+      method: 'PUT',
+      body: { paused: Boolean(paused) },
+    });
+  }
+
+  setMatrixPersonaPause(chatId, paused) {
+    if (typeof chatId !== 'string' || !chatId.trim()) throw new Error('chat_id is required');
+    return this.request(`/api/v1/personas/matrix/${encodeURIComponent(chatId.trim())}/pause`, {
+      method: 'PUT',
+      body: { paused: Boolean(paused) },
+    });
+  }
+
   upsertMatrixPersona({ chat_id, persona }) {
     if (typeof chat_id !== 'string' || !chat_id.trim()) throw new Error('chat_id is required');
     if (!persona || typeof persona !== 'object' || Array.isArray(persona)) throw new Error('persona is required');

@@ -137,7 +137,7 @@ test('production admin treats a missing BotFather registry as an empty list', ()
   }
 });
 
-test('admin page escapes stored persona fields and rejects cross-origin writes', async (t) => {
+test('admin page omits legacy persona settings and rejects cross-origin writes', async (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'matrix-admin-security-test-'));
   const personas = path.join(root, 'personas');
   fs.mkdirSync(personas);
@@ -148,9 +148,8 @@ test('admin page escapes stored persona fields and rejects cross-origin writes',
   const base = `http://127.0.0.1:${server.address().port}`;
   const html = await (await fetch(`${base}/`)).text();
   assert.equal(html.includes('<img src=x onerror=alert(1)>'), false);
-  assert.equal(html.includes("esc(p.displayname)"), true);
-  assert.equal(html.includes("savePersona(\\''+p.name+'\\')"), true);
-  assert.equal(html.includes("savePersona(''+p.name+'')"), false);
+  assert.equal(html.includes("esc(p.displayname)"), false);
+  assert.equal(html.includes("savePersona("), false);
   const crossOrigin = await fetch(`${base}/api/personas/anna_k`, { method: 'PUT', headers: { origin: 'https://attacker.example', 'content-type': 'application/json' }, body: JSON.stringify({ displayname: 'pwned' }) });
   assert.equal(crossOrigin.status, 403);
 });

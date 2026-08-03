@@ -19,6 +19,15 @@ test('admin exposes gen status and manages only Matrix orchestrator personas', a
       models: [{ model: 'auto/best-chat', provider: 'omniroute', available: true }],
     }),
     listMatrixPersonas: async () => [{ source: 'matrix', chat_id: '@anna:chat.example', name: 'Anna' }],
+    getMatrixPause: async () => ({ source: 'matrix', paused: false }),
+    setMatrixPause: async (paused) => {
+      calls.push(['pause-all', paused]);
+      return { source: 'matrix', paused };
+    },
+    setMatrixPersonaPause: async (chatId, paused) => {
+      calls.push(['pause-one', chatId, paused]);
+      return { source: 'matrix', chat_id: chatId, enabled: !paused };
+    },
     upsertMatrixPersona: async (payload) => {
       calls.push(['upsert', payload]);
       return { source: 'matrix', chat_id: payload.chat_id, ...payload.persona };
@@ -59,18 +68,35 @@ test('admin exposes gen status and manages only Matrix orchestrator personas', a
   assert.equal(deleted.status, 204);
   assert.equal(await deleted.text(), '');
   assert.deepEqual(calls[1], ['delete', '@new:chat.example']);
+
+  const onePaused = await fetch(`${base}/api/gen/personas/${encodeURIComponent('@anna:chat.example')}/pause`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ paused: true }),
+  });
+  assert.equal(onePaused.status, 200);
+
+  const allPaused = await fetch(`${base}/api/gen/personas/control`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ paused: true }),
+  });
+  assert.equal(allPaused.status, 200);
+  assert.deepEqual(calls.slice(-2), [
+    ['pause-one', '@anna:chat.example', true],
+    ['pause-all', true],
+  ]);
 });
 
-test('admin page retains existing controls and renders gen Matrix identity controls', async (t) => {
+test('admin page renders each Matrix identity once and exposes pause controls', async (t) => {
   const server = createAdminServer({ personaStore: { list: () => [] } });
   const base = await listen(server);
   t.after(() => server.close());
 
   const html = await (await fetch(`${base}/`)).text();
   assert.match(html, /id="llm"/);
-  assert.match(html, /id="personas"/);
+  assert.doesNotMatch(html, /id="personas"/);
+  assert.equal((html.match(/id="gen-personas"/g) || []).length, 1);
   assert.match(html, /Unified gen/);
   assert.match(html, /Matrix persona identities/);
+  assert.match(html, /Pause all/);
+  assert.match(html, /toggleGenPersona/);
   assert.match(html, /api\('\/api\/gen'/);
   assert.match(html, /api\('\/api\/gen\/personas'/);
 });
@@ -81,7 +107,9 @@ test('orchestrator adapter uses the live API contract and forces Matrix source',
     calls.push([url, options.method, options.body]);
     if (url.endsWith('/healthz')) return new Response(JSON.stringify({ status: 'ok' }));
     if (url.endsWith('/api/v1/models')) return new Response(JSON.stringify([{ model: 'auto/best-chat' }]));
+    if (url.endsWith('/api/v1/personas/control/matrix')) return new Response(JSON.stringify({ source: 'matrix', paused: false }));
     if (url.includes('/api/v1/personas?')) return new Response(JSON.stringify([]));
+    if (url.includes('/pause') && options.method === 'PUT') return new Response(JSON.stringify({ enabled: false }));
     if (options.method === 'POST') return new Response(options.body, { status: 201 });
     if (options.method === 'DELETE') return new Response(null, { status: 204 });
     return new Response(null, { status: 404 });
@@ -101,4 +129,11 @@ test('orchestrator adapter uses the live API contract and forces Matrix source',
   assert.equal(calls[2][0], 'https://gen.example/api/v1/personas?source=matrix&limit=500');
   assert.deepEqual(JSON.parse(calls[3][2]), { source: 'matrix', chat_id: '@anna:chat.example', persona: { name: 'Anna' } });
   assert.equal(calls[4][0], 'https://gen.example/api/v1/personas/matrix/%40anna%3Achat.example');
+
+  await client.getMatrixPause();
+  await client.setMatrixPause(true);
+  await client.setMatrixPersonaPause('@anna:chat.example', true);
+  assert.equal(calls[5][0], 'https://gen.example/api/v1/personas/control/matrix');
+  assert.equal(calls[6][0], 'https://gen.example/api/v1/personas/control/matrix');
+  assert.equal(calls[7][0], 'https://gen.example/api/v1/personas/matrix/%40anna%3Achat.example/pause');
 });
