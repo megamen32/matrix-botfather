@@ -13,9 +13,15 @@ function upstreamError(message) {
 }
 
 class OrchestratorClient {
-  constructor({ endpoint = process.env.COMMENT_ORCHESTRATOR_URL || DEFAULT_ENDPOINT, fetchImpl = globalThis.fetch, timeoutMs = 8000 } = {}) {
+  constructor({
+    endpoint = process.env.COMMENT_ORCHESTRATOR_URL || DEFAULT_ENDPOINT,
+    token = process.env.COMMENT_ORCHESTRATOR_BEARER_TOKEN || process.env.GEN_RUNTIME_BEARER_TOKEN || '',
+    fetchImpl = globalThis.fetch,
+    timeoutMs = 8000,
+  } = {}) {
     if (typeof fetchImpl !== 'function') throw new Error('fetch implementation is required');
     this.endpoint = normalizeEndpoint(endpoint);
+    this.token = typeof token === 'string' ? token.trim() : '';
     this.fetchImpl = fetchImpl;
     this.timeoutMs = timeoutMs;
   }
@@ -25,9 +31,13 @@ class OrchestratorClient {
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     let response;
     try {
+      const headers = body === undefined
+        ? { accept: 'application/json' }
+        : { accept: 'application/json', 'content-type': 'application/json' };
+      if (this.token) headers.authorization = `Bearer ${this.token}`;
       response = await this.fetchImpl(`${this.endpoint}${path}`, {
         method,
-        headers: body === undefined ? { accept: 'application/json' } : { accept: 'application/json', 'content-type': 'application/json' },
+        headers,
         body: body === undefined ? undefined : JSON.stringify(body),
         signal: controller.signal,
       });

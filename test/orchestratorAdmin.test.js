@@ -104,7 +104,7 @@ test('admin page renders each Matrix identity once and exposes pause controls', 
 test('orchestrator adapter uses the live API contract and forces Matrix source', async () => {
   const calls = [];
   const fetchImpl = async (url, options) => {
-    calls.push([url, options.method, options.body]);
+    calls.push([url, options.method, options.body, options.headers]);
     if (url.endsWith('/healthz')) return new Response(JSON.stringify({ status: 'ok' }));
     if (url.endsWith('/api/v1/models')) return new Response(JSON.stringify([{ model: 'auto/best-chat' }]));
     if (url.endsWith('/api/v1/personas/control/matrix')) return new Response(JSON.stringify({ source: 'matrix', paused: false }));
@@ -114,7 +114,11 @@ test('orchestrator adapter uses the live API contract and forces Matrix source',
     if (options.method === 'DELETE') return new Response(null, { status: 204 });
     return new Response(null, { status: 404 });
   };
-  const client = new OrchestratorClient({ endpoint: 'https://gen.example/', fetchImpl });
+  const client = new OrchestratorClient({
+    endpoint: 'https://gen.example/',
+    token: 'matrix-control-token',
+    fetchImpl,
+  });
 
   assert.deepEqual(await client.status('auto/best-chat'), {
     endpoint: 'https://gen.example',
@@ -127,6 +131,9 @@ test('orchestrator adapter uses the live API contract and forces Matrix source',
   await client.deleteMatrixPersona('@anna:chat.example');
 
   assert.equal(calls[2][0], 'https://gen.example/api/v1/personas?source=matrix&limit=500');
+  assert.equal(calls[0][3].authorization, 'Bearer matrix-control-token');
+  assert.equal(calls[1][3].authorization, 'Bearer matrix-control-token');
+  assert.equal(calls[2][3].authorization, 'Bearer matrix-control-token');
   assert.deepEqual(JSON.parse(calls[3][2]), { source: 'matrix', chat_id: '@anna:chat.example', persona: { name: 'Anna' } });
   assert.equal(calls[4][0], 'https://gen.example/api/v1/personas/matrix/%40anna%3Achat.example');
 
@@ -136,4 +143,24 @@ test('orchestrator adapter uses the live API contract and forces Matrix source',
   assert.equal(calls[5][0], 'https://gen.example/api/v1/personas/control/matrix');
   assert.equal(calls[6][0], 'https://gen.example/api/v1/personas/control/matrix');
   assert.equal(calls[7][0], 'https://gen.example/api/v1/personas/matrix/%40anna%3Achat.example/pause');
+});
+
+test('orchestrator adapter accepts the shared Gen runtime bearer from its environment', async () => {
+  const previous = process.env.GEN_RUNTIME_BEARER_TOKEN;
+  process.env.GEN_RUNTIME_BEARER_TOKEN = 'shared-gen-token';
+  try {
+    let headers;
+    const client = new OrchestratorClient({
+      endpoint: 'https://gen.example',
+      fetchImpl: async (_url, options) => {
+        headers = options.headers;
+        return new Response(JSON.stringify([]));
+      },
+    });
+    await client.listMatrixPersonas();
+    assert.equal(headers.authorization, 'Bearer shared-gen-token');
+  } finally {
+    if (previous === undefined) delete process.env.GEN_RUNTIME_BEARER_TOKEN;
+    else process.env.GEN_RUNTIME_BEARER_TOKEN = previous;
+  }
 });
