@@ -31,7 +31,7 @@ async function readBody(request) {
 }
 
 function page() {
-  return String.raw`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Klub control plane</title><style>body{font:16px system-ui;max-width:980px;margin:2rem auto;padding:0 1rem;color:#172033;background:#f5f7fb}textarea,input,select{width:100%;box-sizing:border-box;margin:.35rem 0 .75rem;padding:.5rem}textarea{min-height:8rem}button{padding:.55rem 1rem;margin:.25rem .35rem .25rem 0}article{background:#fff;border:1px solid #ccd3df;border-radius:.55rem;padding:1rem;margin:.8rem 0;box-shadow:0 1px 3px #0001}article.paused{border-color:#c8861a;background:#fffaf0}.status-ok{color:#16733b}.status-error{color:#a12727}.status-paused{color:#9a5d00;font-weight:600}.meta{color:#536176}.models{columns:2;padding-left:1.2rem}@media(max-width:700px){.models{columns:1}}</style><h1>Klub control plane</h1><p>Changes are versioned. Runtime persona state is owned by unified gen.</p><section id="gen"><article><h2>Unified gen</h2><p>Loading status...</p></article></section><section id="gen-personas"><article><h2>Matrix persona identities</h2><p>Loading identities...</p></article></section><section id="llm"></section><section id="botfather-onboarding"></section><script>
+  return String.raw`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Klub control plane</title><style>body{font:16px system-ui;max-width:980px;margin:2rem auto;padding:0 1rem;color:#172033;background:#f5f7fb}textarea,input,select{width:100%;box-sizing:border-box;margin:.35rem 0 .75rem;padding:.5rem}textarea{min-height:8rem}button{padding:.55rem 1rem;margin:.25rem .35rem .25rem 0}article{background:#fff;border:1px solid #ccd3df;border-radius:.55rem;padding:1rem;margin:.8rem 0;box-shadow:0 1px 3px #0001}article.paused{border-color:#c8861a;background:#fffaf0}.status-ok{color:#16733b}.status-error{color:#a12727}.status-paused{color:#9a5d00;font-weight:600}.meta{color:#536176}.models{columns:2;padding-left:1.2rem}@media(max-width:700px){.models{columns:1}}.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.75rem 1rem}.setting{display:flex;flex-direction:column}.setting small{color:#536176;margin-top:-.2rem;margin-bottom:.3rem}input[type=checkbox]{width:auto;margin:.5rem 0}.saved{color:#16733b;font-weight:600}</style><h1>Klub control plane</h1><p>Changes are versioned. Runtime persona state is owned by unified gen.</p><section id="gen"><article><h2>Unified gen</h2><p>Loading status...</p></article></section><section id="gen-personas"><article><h2>Matrix persona identities</h2><p>Loading identities...</p></article></section><section id="llm"></section><section id="bot-settings"></section><section id="botfather-onboarding"></section><script>
 async function api(path, options={}) { const r=await fetch(path,options); const text=await r.text(); if(!r.ok) throw new Error(text||('HTTP '+r.status)); return text?JSON.parse(text):null; }
 function esc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function errorCard(title,error){return '<article><h2>'+esc(title)+'</h2><p class="status-error">'+esc(error.message)+'</p></article>';}
@@ -45,17 +45,48 @@ async function saveGenPersona(index){await api('/api/gen/personas',{method:'POST
 async function toggleGenPersona(index){await api('/api/gen/personas/'+encodeURIComponent(genPersonas[index].chat_id)+'/pause',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({paused:genPersonas[index].enabled!==false})});await loadGenPersonas();}
 async function setAllPaused(paused){await api('/api/gen/personas/control',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({paused})});await loadGenPersonas();}
 async function deleteGenPersona(index){if(!confirm('Delete Matrix identity '+genPersonas[index].chat_id+'?'))return;await api('/api/gen/personas/'+encodeURIComponent(genPersonas[index].chat_id),{method:'DELETE'});await loadGenPersonas();}
+const BOT_SETTING_FIELDS = [
+{s:'bot',k:'interval_min',l:'Минимальный интервал тика (мин)',min:1,max:1440,step:1},
+{s:'bot',k:'interval_max',l:'Максимальный интервал тика (мин)',min:1,max:1440,step:1},
+{s:'bot',k:'reply_probability',l:'Вероятность обычного ответа',min:0,max:1,step:.01},
+{s:'bot',k:'active_conversation_enabled',l:'Активные беседы',bool:true},
+{s:'bot',k:'active_conversation_timeout_min_sec',l:'Active timeout min (сек)',min:1,max:86400,step:1},
+{s:'bot',k:'active_conversation_timeout_max_sec',l:'Active timeout max (сек)',min:1,max:86400,step:1},
+{s:'bot',k:'active_conversation_reply_probability',l:'Вероятность active-ответа',min:0,max:1,step:.01},
+{s:'bot',k:'active_conversation_poll_interval_sec',l:'Active poll (сек)',min:1,max:3600,step:1},
+{s:'bot',k:'active_conversation_max_rounds',l:'Максимум active-раундов',min:1,max:100,step:1},
+{s:'bot',k:'dm_enabled',l:'Ответы в DM',bool:true},
+{s:'bot',k:'dm_reply_probability',l:'Вероятность ответа в DM',min:0,max:1,step:.01},
+{s:'bot',k:'dm_check_interval_min',l:'Проверка DM (мин)',min:1,max:1440,step:1},
+{s:'bot',k:'dm_response_delay_min_sec',l:'DM задержка min (сек)',min:0,max:86400,step:1},
+{s:'bot',k:'dm_response_delay_max_sec',l:'DM задержка max (сек)',min:0,max:86400,step:1},
+{s:'bot',k:'dm_message_max_age_min',l:'Максимальный возраст DM (мин)',min:1,max:1440,step:1},
+{s:'typing',k:'speed_cps',l:'Скорость печати (симв/сек)',min:.1,max:100,step:.1},
+{s:'typing',k:'speed_variance',l:'Разброс скорости',min:0,max:1,step:.01},
+{s:'typing',k:'min_duration_ms',l:'Typing duration min (мс)',min:0,max:300000,step:100},
+{s:'typing',k:'max_duration_ms',l:'Typing duration max (мс)',min:0,max:300000,step:100},
+{s:'typing',k:'pause_after_typing_ms',l:'Пауза после typing (мс)',min:0,max:300000,step:100},
+{s:'typing',k:'pause_between_parts_min_ms',l:'Пауза частей min (мс)',min:0,max:300000,step:100},
+{s:'typing',k:'pause_between_parts_max_ms',l:'Пауза частей max (мс)',min:0,max:300000,step:100},
+{s:'split',k:'max_parts',l:'Максимум частей (0 = без лимита)',min:0,max:100,step:1},
+{s:'split',k:'min_length_to_split',l:'Минимум символов для split',min:1,max:10000,step:1},
+];
+function settingsField(f,v){const id='bot-setting-'+f.s+'-'+f.k;return '<label class="setting">'+esc(f.l)+(f.bool?'<input id="'+id+'" type="checkbox" '+(v?'checked':'')+'></label>':'<input id="'+id+'" type="number" min="'+f.min+'" max="'+f.max+'" step="'+f.step+'" value="'+esc(v)+'"><small>'+f.s+'.'+f.k+'</small></label>');}
+async function loadBotSettings(){try{const settings=await api('/api/bot-settings');document.querySelector('#bot-settings').innerHTML='<article><h2>Поведение Matrix</h2><p class="meta">Изменения применяются перед следующим тиком бота. Вероятности задаются от 0 до 1.</p><div class="settings-grid">'+BOT_SETTING_FIELDS.map(f=>settingsField(f,settings[f.s][f.k])).join('')+'</div><button onclick="saveBotSettings()">Сохранить поведение</button><span id="bot-settings-saved" class="saved"></span></article>';}catch(e){document.querySelector('#bot-settings').innerHTML=errorCard('Поведение Matrix',e);}}
+async function saveBotSettings(){const patch={bot:{},typing:{},split:{}};for(const f of BOT_SETTING_FIELDS){const el=document.querySelector('#bot-setting-'+f.s+'-'+f.k);patch[f.s][f.k]=f.bool?el.checked:Number(el.value);}try{await api('/api/bot-settings',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify(patch)});document.querySelector('#bot-settings-saved').textContent='Сохранено';}catch(e){alert(e.message);}}
 async function loadLocal(){try{const [llm,bots]=await Promise.all([api('/api/llm'),api('/api/bots')]);document.querySelector('#llm').innerHTML='<article><h2>LLM</h2><label>Model<input id="model" value="'+esc(llm.model||'')+'"></label><label>Temperature<input id="temperature" type="number" min="0" max="2" step="0.1" value="'+(llm.temperature??'')+'"></label><label>Max tokens<input id="max_tokens" type="number" value="'+(llm.max_tokens??'')+'"></label><button onclick="saveLlm()">Save LLM</button></article>';const options=bots.map(b=>'<option value="'+esc(b.username)+'">'+esc(b.displayName||b.username)+' ('+esc(b.userId)+')</option>').join('');document.querySelector('#botfather-onboarding').innerHTML='<article><h2>Create identity from BotFather account</h2><p class="meta">Existing settings are shown only in unified gen above.</p><label>BotFather account<select id="new_username"><option value="">Choose an account</option>'+options+'</select></label><label>Display name<input id="new_displayname"></label><label>System prompt<textarea id="new_prompt"></textarea></label><button onclick="createPersona()">Activate persona</button></article>';}catch(e){document.querySelector('#llm').innerHTML=errorCard('LLM',e);document.querySelector('#botfather-onboarding').innerHTML=errorCard('BotFather onboarding',e);}}
 async function saveLlm(){await api('/api/llm',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({model:model.value,temperature:Number(temperature.value),max_tokens:Number(max_tokens.value)})});await loadLocal();await loadGenStatus();}
 async function createPersona(){await api('/api/personas',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:new_username.value,displayname:new_displayname.value,prompt:new_prompt.value})});await loadLocal();}
-Promise.allSettled([loadGenStatus(),loadGenPersonas(),loadLocal()]);</script>`;
+Promise.allSettled([loadGenStatus(),loadGenPersonas(),loadLocal(),loadBotSettings()]);</script>`;
 }
 
-function createAdminServer({ personaStore, llmStore = null, clubActivation = null, botRegistry = () => [], orchestratorClient = null }) {
+function createAdminServer({ personaStore, llmStore = null, botSettingsStore = null, clubActivation = null, botRegistry = () => [], orchestratorClient = null }) {
   if (!personaStore) throw new Error('personaStore is required');
   return http.createServer(async (request, response) => {
     try {
       if (request.url === '/health') return reply(response, 200, { service: 'klub-control-plane', status: 'ok' });
+      if (botSettingsStore && request.method === 'GET' && request.url === '/api/bot-settings') return reply(response, 200, botSettingsStore.public());
+      if (botSettingsStore && request.method === 'PUT' && request.url === '/api/bot-settings') return reply(response, 200, botSettingsStore.update(await readBody(request)));
       if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) && !trustedOrigin(request)) return reply(response, 403, { error: 'cross-origin write denied' });
       if (request.method === 'GET' && request.url === '/') {
         response.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'content-security-policy': "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'" });

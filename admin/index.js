@@ -1,6 +1,7 @@
 const path = require('node:path');
 const { PersonaStore } = require('../lib/personaStore');
 const { LlmConfigStore } = require('../lib/llmConfigStore');
+const { BotSettingsStore } = require('../lib/botSettingsStore');
 const { SecretVault } = require('../lib/secretVault');
 const { ClubActivation } = require('../lib/clubActivation');
 const { createAdminServer } = require('./server');
@@ -19,9 +20,11 @@ const registry = loadBotRegistry;
 const vault = new SecretVault(vaultFile, process.env.CONTROL_PLANE_MASTER_KEY);
 const personaStore = new PersonaStore(personaDirectory, path.join(historyDirectory, 'personas'));
 const llmStore = new LlmConfigStore(configFile, path.join(historyDirectory, 'llm'));
+const botSettingsStore = new BotSettingsStore(configFile, path.join(path.dirname(configFile), '.bot-settings-history'));
 const server = createAdminServer({
   personaStore,
   llmStore,
+  botSettingsStore,
   clubActivation: new ClubActivation({
     personaStore,
     llmStore,
