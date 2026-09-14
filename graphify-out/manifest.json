@@ -1,0 +1,117 @@
+{
+  "admin/index.js": {
+    "mtime": 1785518005.9017406,
+    "ast_hash": "949ea11994389dc79b4e4e07b70a8be8",
+    "semantic_hash": "949ea11994389dc79b4e4e07b70a8be8"
+  },
+  "admin/server.js": {
+    "mtime": 1785518005.9017406,
+    "ast_hash": "cf98961d68aab6543a2db192ba11eb67",
+    "semantic_hash": "cf98961d68aab6543a2db192ba11eb67"
+  },
+  "deploy/lanProxy.js": {
+    "mtime": 1785518288.7124302,
+    "ast_hash": "ccbe3953d1fbfeb83dd94ac7b92fd30f",
+    "semantic_hash": "ccbe3953d1fbfeb83dd94ac7b92fd30f"
+  },
+  "handlers/adminApi.js": {
+    "mtime": 1785507399.287429,
+    "ast_hash": "2ddd7da5da2450a70d6b22e1bc557982",
+    "semantic_hash": "2ddd7da5da2450a70d6b22e1bc557982"
+  },
+  "handlers/botStore.js": {
+    "mtime": 1785508263.9169726,
+    "ast_hash": "20bb8653e4a3008ebf27a1fde85b6e58",
+    "semantic_hash": "20bb8653e4a3008ebf27a1fde85b6e58"
+  },
+  "handlers/commands.js": {
+    "mtime": 1785508085.3316057,
+    "ast_hash": "ca9f79b59b7ad2cca9028bb96433ce40",
+    "semantic_hash": "ca9f79b59b7ad2cca9028bb96433ce40"
+  },
+  "index.js": {
+    "mtime": 1785507959.4508412,
+    "ast_hash": "413f4cdb615db254d5278c1d7e35676e",
+    "semantic_hash": "413f4cdb615db254d5278c1d7e35676e"
+  },
+  "lib/access.js": {
+    "mtime": 1785506713.8730056,
+    "ast_hash": "5fcd44d5a4241ec6146f94f2bd7f937c",
+    "semantic_hash": "5fcd44d5a4241ec6146f94f2bd7f937c"
+  },
+  "lib/clubActivation.js": {
+    "mtime": 1785508478.828461,
+    "ast_hash": "af8fb8518bc9aad59a0ca76d2ef61609",
+    "semantic_hash": "af8fb8518bc9aad59a0ca76d2ef61609"
+  },
+  "lib/llmConfigStore.js": {
+    "mtime": 1785507509.0805833,
+    "ast_hash": "a2861adcf0612227b03b0cf38fc9c083",
+    "semantic_hash": "a2861adcf0612227b03b0cf38fc9c083"
+  },
+  "lib/matrixClient.js": {
+    "mtime": 1785507399.284429,
+    "ast_hash": "2069fe72a828a655c6add8fef0683ca4",
+    "semantic_hash": "2069fe72a828a655c6add8fef0683ca4"
+  },
+  "lib/personaStore.js": {
+    "mtime": 1785507509.0795834,
+    "ast_hash": "65b370a63879237f9172b284c9c8b3a3",
+    "semantic_hash": "65b370a63879237f9172b284c9c8b3a3"
+  },
+  "lib/secretVault.js": {
+    "mtime": 1785506713.8750057,
+    "ast_hash": "266602652431288894a0d4bd527f3f25",
+    "semantic_hash": "266602652431288894a0d4bd527f3f25"
+  },
+  "lib/syncState.js": {
+    "mtime": 1785507952.2846274,
+    "ast_hash": "c7a441baf96a71dba37cecc5d2e9bc90",
+    "semantic_hash": "c7a441baf96a71dba37cecc5d2e9bc90"
+  },
+  "package.json": {
+    "mtime": 1785507408.882703,
+    "ast_hash": "056160ac0c383953c444c4fd85612e6b",
+    "semantic_hash": "056160ac0c383953c444c4fd85612e6b"
+  },
+  "scripts/create-moderator.js": {
+    "mtime": 1785506559.0490804,
+    "ast_hash": "6cff6e7f6893aaff5de428aaa44ce1ce",
+    "semantic_hash": "6cff6e7f6893aaff5de428aaa44ce1ce"
+  },
+  "scripts/migrate-vault.js": {
+    "mtime": 1785507176.1231716,
+    "ast_hash": "883b5b083d16637e4e6edeac452caf2f",
+    "semantic_hash": "883b5b083d16637e4e6edeac452caf2f"
+  },
+  "test/controlPlane.test.js": {
+    "mtime": 1785517941.3587391,
+    "ast_hash": "fb97eb2596d5bdab28a3d3322151fc90",
+    "semantic_hash": "fb97eb2596d5bdab28a3d3322151fc90"
+  },
+  "test/lanProxy.test.js": {
+    "mtime": 1785518288.7114303,
+    "ast_hash": "216f94952e1ec3c75515ef4606c2f9a5",
+    "semantic_hash": "216f94952e1ec3c75515ef4606c2f9a5"
+  },
+  ".agents/last-human-commit/self-improve.md": {
+    "mtime": 1785518513.791282,
+    "ast_hash": "2319df741381edd62737cfe732e73911",
+    "semantic_hash": "2319df741381edd62737cfe732e73911"
+  },
+  "docker-compose.control-plane.yml": {
+    "mtime": 1785515397.14409,
+    "ast_hash": "922393fe0c3210a23bd57607cfddfc2d",
+    "semantic_hash": "922393fe0c3210a23bd57607cfddfc2d"
+  },
+  "docker-compose.yml": {
+    "mtime": 1785506559.0470803,
+    "ast_hash": "23dbbd4cf4d7b3c4be7b4f7154e6682b",
+    "semantic_hash": "23dbbd4cf4d7b3c4be7b4f7154e6682b"
+  },
+  "docs/control-plane.md": {
+    "mtime": 1785507678.46152,
+    "ast_hash": "23b3c566c02b1e0bf496a9275711e0f8",
+    "semantic_hash": "23b3c566c02b1e0bf496a9275711e0f8"
+  }
+}

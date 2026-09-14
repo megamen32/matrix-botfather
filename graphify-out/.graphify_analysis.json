@@ -1,0 +1,371 @@
+{
+  "communities": {
+    "0": [
+      "handlers_botstore",
+      "handlers_botstore_default_data",
+      "handlers_botstore_deletebot",
+      "handlers_botstore_fs",
+      "handlers_botstore_getallbots",
+      "handlers_botstore_getbot",
+      "handlers_botstore_getbotcount",
+      "handlers_botstore_getbotcredentials",
+      "handlers_botstore_loaddata",
+      "handlers_botstore_migratelegacysecrets",
+      "handlers_botstore_path",
+      "handlers_botstore_publicbot",
+      "handlers_botstore_savebot",
+      "handlers_botstore_savedata",
+      "handlers_botstore_secretvault",
+      "handlers_botstore_storagefile",
+      "handlers_botstore_updatebottoken",
+      "handlers_botstore_vault",
+      "handlers_botstore_vaultfile",
+      "handlers_commands",
+      "handlers_commands_cmddeletebot",
+      "handlers_commands_cmdhelp",
+      "handlers_commands_cmdinfo",
+      "handlers_commands_cmdinvite",
+      "handlers_commands_cmdjoin",
+      "handlers_commands_cmdlistbots",
+      "handlers_commands_cmdnewbot",
+      "handlers_commands_cmdnote",
+      "handlers_commands_cmdresetpw",
+      "handlers_commands_cmdrooms",
+      "handlers_commands_cmdtoken",
+      "handlers_commands_createbot_refreshbottoken_resetbotpassword_deletebot_listusers_inviteuser_joinroom_listrooms_getuserinfo_generatepassword_auth_mode",
+      "handlers_commands_fmt",
+      "handlers_commands_getbot_getallbots_savebot_deletebot_storedeletebot_updatebottoken_getbotcredentials_getbotcount",
+      "handlers_commands_getservername",
+      "handlers_commands_handlecommand",
+      "handlers_commands_htmlescape",
+      "handlers_commands_isowner",
+      "handlers_commands_parsecommand",
+      "scripts_migrate_vault",
+      "scripts_migrate_vault_migratelegacysecrets"
+    ],
+    "1": [
+      "admin_index",
+      "admin_index_clubactivation",
+      "admin_index_createadminserver",
+      "admin_index_llmconfigstore",
+      "admin_index_llmstore",
+      "admin_index_path",
+      "admin_index_personastore",
+      "admin_index_registry",
+      "admin_index_secretvault",
+      "admin_index_server",
+      "admin_index_vault",
+      "admin_server",
+      "admin_server_createadminserver",
+      "admin_server_http",
+      "admin_server_page",
+      "admin_server_readbody",
+      "admin_server_reply",
+      "admin_server_trustedorigin",
+      "lib_clubactivation",
+      "lib_clubactivation_clubactivation",
+      "lib_clubactivation_clubactivation_activate",
+      "lib_clubactivation_clubactivation_constructor",
+      "lib_clubactivation_fs",
+      "lib_clubactivation_readenv",
+      "lib_clubactivation_tokenkey",
+      "lib_clubactivation_writeatomic",
+      "lib_clubactivation_writeenv"
+    ],
+    "2": [
+      "handlers_adminapi",
+      "handlers_adminapi_createbot",
+      "handlers_adminapi_deletebot",
+      "handlers_adminapi_execsync",
+      "handlers_adminapi_generatepassword",
+      "handlers_adminapi_getadmintoken",
+      "handlers_adminapi_gethomeserverurl",
+      "handlers_adminapi_getservername",
+      "handlers_adminapi_getuserinfo",
+      "handlers_adminapi_httprequest",
+      "handlers_adminapi_https",
+      "handlers_adminapi_inviteuser",
+      "handlers_adminapi_joinroom",
+      "handlers_adminapi_listrooms",
+      "handlers_adminapi_listusers",
+      "handlers_adminapi_mascli",
+      "handlers_adminapi_masissuetoken",
+      "handlers_adminapi_masregisteruser",
+      "handlers_adminapi_massetpassword",
+      "handlers_adminapi_refreshbottoken",
+      "handlers_adminapi_resetbotpassword"
+    ],
+    "3": [
+      "handlers_adminapi_adminlogin",
+      "index",
+      "index_adminlogin",
+      "index_ensurebottoken",
+      "index_eventmessage_request_sendmessage",
+      "index_handlecommand",
+      "index_start",
+      "index_syncstate",
+      "lib_matrixclient",
+      "lib_matrixclient_crypto",
+      "lib_matrixclient_eventmessage",
+      "lib_matrixclient_request",
+      "lib_matrixclient_sendmessage",
+      "lib_matrixclient_timelinemessages",
+      "lib_syncstate",
+      "lib_syncstate_syncstate",
+      "lib_syncstate_syncstate_accept",
+      "lib_syncstate_syncstate_constructor",
+      "lib_syncstate_syncstate_since",
+      "lib_syncstate_timelinemessages"
+    ],
+    "4": [
+      ".agents_last-human-commit_self-improve_md",
+      "botfather_registry",
+      "botfather_service",
+      "botfather_vault",
+      "central_auth_deploy",
+      "control-history_dir",
+      "control-plane_service",
+      "deployment_preflight_proposal",
+      "docker-compose_control-plane_yml",
+      "docker-compose_yml",
+      "docker_socket",
+      "docs_control-plane_md",
+      "klub-diskussiy-v2_config",
+      "klub-diskussiy-v2_env_local",
+      "klub-diskussiy-v2_personas",
+      "mas_cli",
+      "nginx_dev",
+      "nginx_ingress",
+      "persona_activation"
+    ],
+    "5": [
+      "lib_access",
+      "lib_access_configuredowners",
+      "lib_access_isowner",
+      "test_controlplane_test",
+      "test_controlplane_test_assert",
+      "test_controlplane_test_clubactivation",
+      "test_controlplane_test_createadminserver",
+      "test_controlplane_test_eventmessage_timelinemessages",
+      "test_controlplane_test_fs",
+      "test_controlplane_test_handlecommand",
+      "test_controlplane_test_isowner",
+      "test_controlplane_test_llmconfigstore",
+      "test_controlplane_test_os",
+      "test_controlplane_test_path",
+      "test_controlplane_test_personastore",
+      "test_controlplane_test_secretvault",
+      "test_controlplane_test_syncstate",
+      "test_controlplane_test_test"
+    ],
+    "6": [
+      "lib_personastore",
+      "lib_personastore_assertname",
+      "lib_personastore_atomicwrite",
+      "lib_personastore_crypto",
+      "lib_personastore_fs",
+      "lib_personastore_path",
+      "lib_personastore_personastore",
+      "lib_personastore_personastore_constructor",
+      "lib_personastore_personastore_create",
+      "lib_personastore_personastore_file",
+      "lib_personastore_personastore_get",
+      "lib_personastore_personastore_list",
+      "lib_personastore_personastore_update",
+      "lib_personastore_style_fields",
+      "lib_personastore_toml",
+      "package_name"
+    ],
+    "7": [
+      "lib_llmconfigstore",
+      "lib_llmconfigstore_atomicwrite",
+      "lib_llmconfigstore_crypto",
+      "lib_llmconfigstore_fields",
+      "lib_llmconfigstore_fs",
+      "lib_llmconfigstore_llmconfigstore",
+      "lib_llmconfigstore_llmconfigstore_adddemoaccount",
+      "lib_llmconfigstore_llmconfigstore_constructor",
+      "lib_llmconfigstore_llmconfigstore_demoaccounts",
+      "lib_llmconfigstore_llmconfigstore_document",
+      "lib_llmconfigstore_llmconfigstore_public",
+      "lib_llmconfigstore_llmconfigstore_read",
+      "lib_llmconfigstore_llmconfigstore_update",
+      "lib_llmconfigstore_path",
+      "lib_llmconfigstore_toml"
+    ],
+    "8": [
+      "dotenv",
+      "iarna_toml",
+      "package",
+      "package_dependencies",
+      "package_dependencies_dotenv",
+      "package_dependencies_iarna_toml",
+      "package_description",
+      "package_main",
+      "package_scripts",
+      "package_scripts_admin",
+      "package_scripts_start",
+      "package_scripts_test",
+      "package_version"
+    ],
+    "9": [
+      "lib_secretvault",
+      "lib_secretvault_crypto",
+      "lib_secretvault_fs",
+      "lib_secretvault_path",
+      "lib_secretvault_secretvault",
+      "lib_secretvault_secretvault_constructor",
+      "lib_secretvault_secretvault_delete",
+      "lib_secretvault_secretvault_get",
+      "lib_secretvault_secretvault_load",
+      "lib_secretvault_secretvault_put",
+      "lib_secretvault_secretvault_save"
+    ],
+    "10": [
+      "deploy_lanproxy",
+      "deploy_lanproxy_allowedremote",
+      "deploy_lanproxy_createlanproxy",
+      "deploy_lanproxy_http",
+      "deploy_lanproxy_normalizeaddress",
+      "test_lanproxy_test",
+      "test_lanproxy_test_allowedremote_normalizeaddress",
+      "test_lanproxy_test_assert",
+      "test_lanproxy_test_test"
+    ],
+    "11": [
+      "scripts_create_moderator",
+      "scripts_create_moderator_crypto",
+      "scripts_create_moderator_generatepassword",
+      "scripts_create_moderator_https",
+      "scripts_create_moderator_main",
+      "scripts_create_moderator_request"
+    ]
+  },
+  "cohesion": {
+    "0": 0.13658536585365855,
+    "1": 0.10541310541310542,
+    "2": 0.2761904761904762,
+    "3": 0.16842105263157894,
+    "4": 0.16374269005847952,
+    "5": 0.12418300653594772,
+    "6": 0.21666666666666667,
+    "7": 0.20952380952380953,
+    "8": 0.15384615384615385,
+    "9": 0.2727272727272727,
+    "10": 0.3333333333333333,
+    "11": 0.4666666666666667
+  },
+  "gods": [
+    {
+      "id": "handlers_commands_handlecommand",
+      "label": "handleCommand()",
+      "degree": 17
+    },
+    {
+      "id": "control-plane_service",
+      "label": "control-plane service",
+      "degree": 12
+    },
+    {
+      "id": "handlers_adminapi_httprequest",
+      "label": "httpRequest()",
+      "degree": 11
+    },
+    {
+      "id": "handlers_adminapi_createbot",
+      "label": "createBot()",
+      "degree": 11
+    },
+    {
+      "id": "handlers_adminapi_gethomeserverurl",
+      "label": "getHomeserverUrl()",
+      "degree": 10
+    },
+    {
+      "id": "handlers_botstore_getbot",
+      "label": "getBot()",
+      "degree": 10
+    },
+    {
+      "id": "lib_llmconfigstore_llmconfigstore",
+      "label": "LlmConfigStore",
+      "degree": 10
+    },
+    {
+      "id": "lib_secretvault_secretvault",
+      "label": "SecretVault",
+      "degree": 10
+    },
+    {
+      "id": "handlers_adminapi_resetbotpassword",
+      "label": "resetBotPassword()",
+      "degree": 9
+    },
+    {
+      "id": "handlers_botstore_loaddata",
+      "label": "loadData()",
+      "degree": 9
+    }
+  ],
+  "surprises": [
+    {
+      "source": "central auth deploy (server 88)",
+      "target": "control-plane service",
+      "source_files": [
+        ".agents/last-human-commit/self-improve.md",
+        "docker-compose.control-plane.yml"
+      ],
+      "confidence": "AMBIGUOUS",
+      "relation": "semantically_similar_to",
+      "why": "ambiguous connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "deployment preflight tool (proposed)",
+      "target": "control-plane service",
+      "source_files": [
+        ".agents/last-human-commit/self-improve.md",
+        "docker-compose.control-plane.yml"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link; peripheral node `deployment preflight tool (proposed)` unexpectedly reaches hub `control-plane service`"
+    },
+    {
+      "source": "nginx-dev (server-100)",
+      "target": "authenticated nginx ingress",
+      "source_files": [
+        ".agents/last-human-commit/self-improve.md",
+        "docs/control-plane.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "central auth deploy (server 88)",
+      "target": "authenticated nginx ingress",
+      "source_files": [
+        ".agents/last-human-commit/self-improve.md",
+        "docs/control-plane.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "handleCommand()",
+      "target": "isOwner()",
+      "source_files": [
+        "handlers/commands.js",
+        "lib/access.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "tokens": {
+    "input": 2175,
+    "output": 2965
+  }
+}
