@@ -18,7 +18,7 @@
 - Name: `LHC AgentCall test 2026-10-21`
 - Room ID: `!WcdQRAMzHhrxcZzQad:chat.bezrabotnyi.com`
 - Private, non-federated, and unencrypted; joined members are the UserIO caller `@aiadmin:chat.bezrabotnyi.com` and test peer B only.
-- One UserIO call to peer B ended `unanswered` with no audio because no MatrixRTC receiving client answered. See the UserIO task's `.agents/TEST_ACCESS.md` for the non-secret receipt.
+- The first UserIO call was unanswered because no receiver was online. After joining from an isolated Element test client and allowing `org.matrix.msc3401.call.member` in the room power levels, a later call completed with `answered=true`; the recording contains sent assistant TTS and no received caller audio. See UserIO `.agents/TEST_ACCESS.md` for exact non-secret receipts and recording evidence.
 
 ## Credential boundary
 
