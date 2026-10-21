@@ -10,8 +10,15 @@
 
 | Role | Matrix ID | Display name | State |
 | --- | --- | --- | --- |
-| Caller | `@lhc_voice_tester_a_20261021:chat.bezrabotnyi.com` | LHC Voice Caller Test | Active, non-admin, unjoined |
-| Peer / callee | `@lhc_voice_tester_b_20261021:chat.bezrabotnyi.com` | LHC Voice Peer Test | Active, non-admin, unjoined |
+| Test account A | `@lhc_voice_tester_a_20261021:chat.bezrabotnyi.com` | LHC Voice Caller Test | Active, non-admin, unjoined; not used in latest call |
+| Peer / callee | `@lhc_voice_tester_b_20261021:chat.bezrabotnyi.com` | LHC Voice Peer Test | Active, non-admin; joined to the isolated test room below |
+
+## Isolated call test room
+
+- Name: `LHC AgentCall test 2026-10-21`
+- Room ID: `!WcdQRAMzHhrxcZzQad:chat.bezrabotnyi.com`
+- Private, non-federated, and unencrypted; joined members are the UserIO caller `@aiadmin:chat.bezrabotnyi.com` and test peer B only.
+- One UserIO call to peer B ended `unanswered` with no audio because no MatrixRTC receiving client answered. See the UserIO task's `.agents/TEST_ACCESS.md` for the non-secret receipt.
 
 ## Credential boundary
 
