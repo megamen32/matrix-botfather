@@ -66,20 +66,36 @@ function masCli(command) {
   }
 }
 
-function masRegisterUser(username, password) {
+function masRegisterUser(username, password, displayName) {
+  validateMatrixLocalpart(username);
   const pw = password || generatePassword();
   const escapedPw = pw.replace(/'/g, "'\\''");
-  masCli(`manage register-user --yes --password '${escapedPw}' ${username}`);
+  const escapedDisplayName = String(displayName || username).replace(/'/g, "'\\''");
+  masCli(`manage register-user --yes --no-admin --password '${escapedPw}' --display-name '${escapedDisplayName}' ${username}`);
   return pw;
 }
 
 function masSetPassword(username, password) {
+  validateMatrixLocalpart(username);
   const escapedPw = password.replace(/'/g, "'\\''");
   masCli(`manage set-password ${username} '${escapedPw}'`);
 }
 
+function masUnlockUser(username) {
+  validateMatrixLocalpart(username);
+  masCli(`manage unlock-user ${username} --reactivate`);
+}
+
+function masDemoteAdmin(username) {
+  validateMatrixLocalpart(username);
+  masCli(`manage demote-admin ${username}`);
+}
+
 function masIssueToken(userId) {
-  const output = masCli(`manage issue-compatibility-token ${userId}`);
+  const match = typeof userId === 'string' && /^@([^:]+):.+$/.exec(userId);
+  if (!match) throw new Error('Invalid Matrix user ID');
+  validateMatrixLocalpart(match[1]);
+  const output = masCli(`manage issue-compatibility-token ${match[1]}`);
   // MAS outputs the token directly
   return output.trim();
 }
@@ -114,40 +130,37 @@ async function adminLogin(homeserverUrl, username, password) {
  * В MAS-режиме: Synapse user + MAS password + compatibility token
  * В Synapse-режиме: Synapse user с паролем через Admin API
  */
+function validateMatrixLocalpart(username) {
+  // Conservative BotFather subset of Matrix's localpart grammar; excludes shell syntax.
+  if (typeof username !== 'string' || !/^[a-z0-9][a-z0-9._=-]{0,254}$/.test(username)) {
+    throw new Error('Invalid Matrix username: expected 1-255 lowercase letters, digits, dot, underscore, equals, or hyphen');
+  }
+}
+
 async function createBot(username, displayName) {
+  validateMatrixLocalpart(username);
   const hs = getHomeserverUrl();
   const token = getAdminToken();
   const server = getServerName();
   const userId = `@${username}:${server}`;
 
   if (AUTH_MODE === 'mas') {
-    // 1. Создаём/реактивируем через Synapse Admin API (без пароля)
-    try {
-      await httpRequest(hs, token, 'PUT', `/_synapse/admin/v2/users/${encodeURIComponent(userId)}`, {
-        displayname: displayName || username,
-        admin: false,
-        deactivated: false,
-      });
-    } catch (err) {
-      // Если пользователь стёрт (erased), нужно пересоздать
-      if (err.message.includes('500')) {
-        // Попробуем через MAS register
-      } else {
-        throw err;
-      }
-    }
-
-    // 2. Регистрируем в MAS с паролем
     let password;
+    let existingMasUser = false;
     try {
-      password = masRegisterUser(username);
+      // MAS регистрирует пользователя и задаёт профиль при создании.
+      password = masRegisterUser(username, undefined, displayName);
     } catch (err) {
-      // Возможно пользователь уже есть в MAS — просто установим пароль
+      // Возможно пользователь уже есть в MAS — установим пароль и снимем блокировку.
       password = generatePassword();
       try {
+        // Demote first; never rotate credentials or return a bot while it may remain admin.
+        masDemoteAdmin(username);
         masSetPassword(username, password);
+        masUnlockUser(username);
+        existingMasUser = true;
       } catch (err2) {
-        throw new Error(`MAS register/set-password failed: ${err.message} / ${err2.message}`);
+        throw new Error(`MAS existing-user recovery failed: ${err.message} / ${err2.message}`);
       }
     }
 
@@ -167,6 +180,13 @@ async function createBot(username, displayName) {
       } catch (err2) {
         throw new Error(`Не удалось получить токен: MAS token=${err.message}, login=${err2.message}`);
       }
+    }
+
+    // Обновляем профиль существующего MAS-аккаунта его собственным токеном.
+    if (existingMasUser) {
+      await httpRequest(hs, compatToken, 'PUT', `/_matrix/client/v3/profile/${encodeURIComponent(userId)}/displayname`, {
+        displayname: displayName || username,
+      });
     }
 
     return { userId, password, token: compatToken, displayName: displayName || username };
@@ -216,6 +236,7 @@ async function refreshBotToken(userId, password) {
 
 /** Сменить пароль бота */
 async function resetBotPassword(username, newPassword) {
+  validateMatrixLocalpart(username);
   if (AUTH_MODE === 'mas') {
     const pw = newPassword || generatePassword();
     masSetPassword(username, pw);
