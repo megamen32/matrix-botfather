@@ -22,5 +22,13 @@ Run the panel privately:
 docker compose -f docker-compose.yml -f docker-compose.control-plane.yml up -d control-plane
 ```
 
-It listens only on `127.0.0.1:8092`. Publish it through an authenticated Nginx
-vhost only after choosing its hostname and access policy.
+It listens only on `127.0.0.1:8092`. The live owner UI is published at
+`https://admin.debate.bezrabotnyi.com/` behind the existing
+`auth.bezrabotnyi.com` SSO gate.
+
+The UI also configures the separate Matrix moderator. Its Compose service lives
+in `/home/roomhacker/matrix-synapse/moderator-bot` and exposes its control API
+only on server-88 loopback port `8093`; the control plane proxies these
+requests server-side. Do not expose that port through Nginx. The API returns
+room moderation settings, preset names and rule metadata only, not user warning
+records or message history. New rooms are created with moderation disabled.

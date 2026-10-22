@@ -7,6 +7,7 @@ const { ClubActivation } = require('../lib/clubActivation');
 const { createAdminServer } = require('./server');
 const { loadBotRegistry } = require('./registry');
 const { OrchestratorClient } = require('./orchestratorClient');
+const { ModeratorClient } = require('./moderatorClient');
 
 const personaDirectory = process.env.KLUB_PERSONA_DIR;
 const configFile = process.env.KLUB_CONFIG_FILE;
@@ -34,5 +35,6 @@ const server = createAdminServer({
   }),
   botRegistry: () => Object.values(registry()).map(({ username, userId, displayName, createdAt }) => ({ username, userId, displayName, createdAt })),
   orchestratorClient: new OrchestratorClient(),
+  moderatorClient: new ModeratorClient(),
 });
 server.listen(Number(process.env.CONTROL_PLANE_PORT || 8092), process.env.CONTROL_PLANE_BIND || '127.0.0.1', () => console.log('Klub control plane listening'));
